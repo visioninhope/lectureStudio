@@ -50,6 +50,7 @@ import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.data.bind.SpeechMessageAdapter;
 import org.lecturestudio.web.api.message.CourseFeatureMessengerParticipantMessage;
 import org.lecturestudio.web.api.message.CourseParticipantMessage;
+import org.lecturestudio.web.api.message.EmojiMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.net.SSLContextFactory;
 import org.lecturestudio.web.api.service.ServiceParameters;
@@ -86,10 +87,10 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 
 	public StreamWebSocketClient(EventBus eventBus,
-			ServiceParameters parameters,
-			WebSocketHeaderProvider headerProvider,
-			StreamEventRecorder eventRecorder,
-			Course course) {
+								 ServiceParameters parameters,
+								 WebSocketHeaderProvider headerProvider,
+								 StreamEventRecorder eventRecorder,
+								 Course course) {
 		requireNonNull(eventBus);
 		requireNonNull(parameters);
 		requireNonNull(headerProvider);
@@ -156,17 +157,17 @@ public class StreamWebSocketClient extends ExecutableBase {
 	private void send(StreamAction action) {
 		try {
 			webSocket.sendBinary(ByteBuffer.wrap(action.toByteArray()), true);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			logException(e, "Send event state failed");
 		}
 	}
 
 
-
 	private class WebSocketListener implements Listener {
 
-		/** Accumulating message buffer. */
+		/**
+		 * Accumulating message buffer.
+		 */
 		private StringBuffer buffer = new StringBuffer();
 
 
@@ -177,7 +178,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 		@Override
 		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data,
-				boolean last) {
+										 boolean last) {
 			logTraceMessage("WebSocket <-: {0}", data);
 
 			webSocket.request(1);
@@ -195,11 +196,11 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 					if (typeStr.startsWith("Speech")) {
 						message = jsonb.fromJson(jsonData, SpeechBaseMessage.class);
-					}
-					else if (typeStr.startsWith("CourseParticipant")) {
+					} else if (typeStr.startsWith("CourseParticipant")) {
 						message = jsonb.fromJson(jsonData, CourseParticipantMessage.class);
-					}
-					else{
+					} else if (typeStr.startsWith("Emoji")) {
+						message = jsonb.fromJson(jsonData, EmojiMessage.class);
+					} else {
 						System.out.println(typeStr);
 						System.out.println(jsonData);
 					}
@@ -207,8 +208,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 					if (nonNull(message)) {
 						eventBus.post(message);
 					}
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					logException(e, "Process message failed");
 				}
 

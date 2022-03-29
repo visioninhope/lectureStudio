@@ -36,6 +36,7 @@ import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
+import org.lecturestudio.core.model.EmojiType;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
 public interface MenuView extends View {
@@ -199,4 +200,6 @@ public interface MenuView extends View {
 	void bindAttendeesCount(IntegerProperty count);
 
 	void setQuizServiceState(QuizWebServiceState state);
+
+	void incrementEmojiCount(EmojiType emojiType);
 }

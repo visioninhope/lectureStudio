@@ -109,6 +109,7 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		tagLibrary.registerTag("ToggleComboButton", ToggleComboButton.class);
 		tagLibrary.registerTag("ToolGroupButton", ToolGroupButton.class);
 		tagLibrary.registerTag("Tree", new BeanFactory(JTree.class, new TreeProcessor()));
+		tagLibrary.registerTag("EmojiIndicatorMenu", EmojiIndicatorMenu.class);
 	}
 
 	private final Localizer localizer;

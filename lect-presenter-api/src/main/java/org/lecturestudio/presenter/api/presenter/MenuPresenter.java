@@ -89,6 +89,7 @@ import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
+import org.lecturestudio.web.api.message.EmojiMessage;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
 public class MenuPresenter extends Presenter<MenuView> {
@@ -202,6 +203,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 		if (viewClass == MessengerWindow.class) {
 			view.setMessengerWindowVisible(visible);
 		}
+	}
+
+	@Subscribe
+	public void onEvent(final EmojiMessage message) {
+		view.incrementEmojiCount(message.getEmoji().getEmojiType());
 	}
 
 	public void openBookmark(Bookmark bookmark) {

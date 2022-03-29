@@ -51,9 +51,11 @@ import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.presenter.api.view.MenuView;
+import org.lecturestudio.swing.components.EmojiIndicatorMenu;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
+import org.lecturestudio.core.model.EmojiType;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
 @SwingView(name = "main-menu", presenter = org.lecturestudio.presenter.api.presenter.MenuPresenter.class)
@@ -155,6 +157,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenu streamIndicatorMenu;
 
+	private EmojiIndicatorMenu emojiIndicatorMenu;
 
 	@Inject
 	SwingMenuView(Dictionary dict) {
@@ -438,6 +441,10 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 			setIndicatorState(streamIndicatorMenu, state);
 			setIndicatorState(speechIndicatorMenu, state);
+			setIndicatorState(emojiIndicatorMenu, state);
+			if (state == ExecutableState.Stopped || state == ExecutableState.Error) {
+				emojiIndicatorMenu.clear();
+			}
 		});
 	}
 
@@ -456,7 +463,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 				}
 			}
 
-			if (bookmarksMenu.getItemCount() == fixedMenuItems && bookmarkList.size() > 0) {
+			if (bookmarksMenu.getItemCount() == fixedMenuItems && !bookmarkList.isEmpty()) {
 				bookmarksMenu.add(new JPopupMenu.Separator(), 0);
 			}
 
@@ -654,6 +661,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		SwingUtils.invoke(() -> {
 			quizIndicatorMenu.setText(Long.toString(state.answerCount));
 		});
+	}
+
+	@Override
+	public void incrementEmojiCount(EmojiType emojiType) {
+		emojiIndicatorMenu.incrementEmojiCount(emojiType);
 	}
 
 	@ViewPostConstruct

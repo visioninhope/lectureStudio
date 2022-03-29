@@ -18,37 +18,36 @@
 
 package org.lecturestudio.web.api.model;
 
+import org.lecturestudio.core.model.EmojiType;
+
 import java.io.Serializable;
 import java.util.Objects;
 
 
 public class Emoji extends ServiceModel implements Comparable<Emoji>, Cloneable, Serializable {
 
-	private String emoji;
-
+	private EmojiType emojiType;
 
 	public Emoji() {
 		this(null);
 	}
 
-	public Emoji(String emoji) {
-		this.setEmoji(emoji);
+	public Emoji(EmojiType emoji) {
+		this.setEmojiType(emoji);
 	}
 
-	public String getEmoji() {
-		return emoji;
+	public EmojiType getEmojiType() {
+		return emojiType;
 	}
 
-	public void setEmoji(String emoji) {
-		this.emoji = emoji;
+	public void setEmojiType(EmojiType emojiType) {
+		this.emojiType = emojiType;
 	}
-
 
 	@Override
 	public int compareTo(Emoji other) {
-		return emoji.compareToIgnoreCase(other.emoji);
+		return emojiType.compareTo(other.emojiType);
 	}
-
 
 	@Override
 	public boolean equals(Object o) {
@@ -61,22 +60,22 @@ public class Emoji extends ServiceModel implements Comparable<Emoji>, Cloneable,
 
 		Emoji other = (Emoji) o;
 
-		return getServiceId() == other.getServiceId() && Objects.equals(emoji, other.emoji);
+		return Objects.equals(getServiceId(), other.getServiceId()) && Objects.equals(emojiType, other.emojiType);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getServiceId(), emoji);
+		return Objects.hash(getServiceId(), emojiType);
 	}
 
 	@Override
 	public Emoji clone() {
-		return new Emoji(emoji);
+		return new Emoji(emojiType);
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ": " + emoji;
+		return getClass().getSimpleName() + ": " + emojiType;
 	}
 
 }
