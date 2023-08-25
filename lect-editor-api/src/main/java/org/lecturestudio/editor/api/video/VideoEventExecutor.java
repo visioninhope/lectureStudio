@@ -20,9 +20,16 @@ package org.lecturestudio.editor.api.video;
 
 import static java.util.Objects.nonNull;
 
+import com.github.javaffmpeg.Demuxer;
+import com.github.javaffmpeg.Image;
+import com.github.javaffmpeg.JavaFFmpeg;
+import com.github.javaffmpeg.MediaFrame;
+import com.github.javaffmpeg.VideoFrame;
 import com.google.common.eventbus.Subscribe;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
@@ -225,6 +232,13 @@ public class VideoEventExecutor extends EventExecutor {
 			}
 		}
 
+		try {
+			renderScreenVideo(timeStep);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		if (!stopped()) {
 			stop();
 		}
@@ -252,6 +266,27 @@ public class VideoEventExecutor extends EventExecutor {
 		frames++;
 	}
 
+	private void renderVideoFrame(BufferedImage image, long timestamp) {
+		if (timestamp == 0) {
+			timestamp = 1;
+		}
+
+		float currentFps = frames / (timestamp / 1000f);
+
+		if (currentFps > frameRate) {
+			// Drop frame.
+			return;
+		}
+
+		if (nonNull(frameConsumer)) {
+			progressEvent.getCurrentTime().setMillis(timestamp);
+
+			frameConsumer.accept(image, progressEvent);
+		}
+
+		frames++;
+	}
+
 	private void getPlaybackActions(int pageNumber) {
 		RecordedPage recPage = recordedPages.get(pageNumber);
 
@@ -271,5 +306,55 @@ public class VideoEventExecutor extends EventExecutor {
 		}
 
 		this.pageNumber = pageNumber;
+	}
+
+	private void renderScreenVideo(int timeStep) throws Exception {
+		JavaFFmpeg.loadLibrary();
+
+		Dimension imageSize = renderView.getImageSize();
+		int outputWidth = imageSize.width;
+		int outputHeight = imageSize.height;
+
+
+		Demuxer demuxer = new Demuxer();
+		demuxer.setInputFormat("mov");
+		demuxer.open("C:\\Users\\Alex\\Desktop\\bunny.mov");
+
+		MediaFrame mediaFrame;
+		while ((mediaFrame = demuxer.readFrame()) != null) {
+			if (mediaFrame.getType() == MediaFrame.Type.VIDEO) {
+				VideoFrame videoFrame = (VideoFrame) mediaFrame;
+
+				BufferedImage image = Image.createImage(
+						videoFrame.getData(), videoFrame.getWidth(),
+						videoFrame.getHeight(),
+						BufferedImage.TYPE_3BYTE_BGR);
+
+				if (image.getWidth() != outputWidth || image.getHeight() != outputHeight) {
+					// We have to resize the video frame.
+					// TODO: improve speed, see https://www.baeldung.com/java-resize-image
+					image = resizeImage(image, outputWidth, outputHeight);
+				}
+
+				System.out.println(image);
+
+				renderVideoFrame(image, this.time);
+
+				this.time += timeStep;
+			}
+		}
+
+		demuxer.close();
+	}
+
+	private BufferedImage resizeImage(BufferedImage originalImage,
+			int targetWidth, int targetHeight) throws IOException {
+		java.awt.Image resultingImage = originalImage.getScaledInstance(targetWidth,
+				targetHeight, java.awt.Image.SCALE_DEFAULT);
+		BufferedImage outputImage = new BufferedImage(targetWidth, targetHeight,
+				BufferedImage.TYPE_INT_RGB);
+		outputImage.getGraphics().drawImage(resultingImage, 0, 0, null);
+
+		return outputImage;
 	}
 }

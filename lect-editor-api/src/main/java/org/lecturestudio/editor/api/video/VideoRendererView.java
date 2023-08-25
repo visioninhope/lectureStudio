@@ -21,6 +21,7 @@ package org.lecturestudio.editor.api.video;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
@@ -92,6 +93,10 @@ public class VideoRendererView implements SlideView, ShapeListener, ParameterCha
 
 	public void setRenderController(RenderController renderController) {
 		this.renderController = renderController;
+	}
+
+	public Dimension getImageSize() {
+		return new Dimension(width, height);
 	}
 
 	public BufferedImage renderCurrentFrame() {
